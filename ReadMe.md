@@ -57,8 +57,8 @@ https://enphase.com/download/iq-gateway-local-apis-or-ui-access-using-token
 https://enphase.com/download/iq-gateway-access-using-local-apis-or-local-ui-token-based-authentication-tech-brief
 
 My LI posts about this project:  
-[Part 5 (TUI predeccesor)](https://www.linkedin.com/posts/jimzuras_accessing-iq-gateway-local-apis-and-local-activity-7351404029890945024-UAZh])  
-[Part 6 (This MAUI project)](todo)
+[Part 5 (TUI predeccesor)](https://www.linkedin.com/posts/jimzuras_accessing-iq-gateway-local-apis-and-local-activity-7351404029890945024-UAZh)  
+[Part 6 (This MAUI project)](https://www.linkedin.com/feed/update/urn:li:share:7351699841686593537/)
 
                                              
 
