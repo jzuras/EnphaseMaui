@@ -1,0 +1,84 @@
+@page "/current-token"
+@using MauiEnphaseMonitor.Shared.Services
+@inject IFormFactor FormFactor
+
+<PageTitle>Enphase Monitor - Token</PageTitle>
+
+<h1>Current Token</h1>
+
+@if (IsLoading)
+{
+    <div class="d-flex justify-content-center">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+}
+else
+{
+    @if (!string.IsNullOrEmpty(ErrorMessage))
+    {
+        <div class="alert alert-danger" role="alert">
+            @ErrorMessage
+        </div>
+    }
+
+    @if (!string.IsNullOrEmpty(SuccessMessage))
+    {
+        <div class="alert alert-success" role="alert">
+            @SuccessMessage
+        </div>
+    }
+
+    @if (HasToken)
+    {
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Current Stored Token</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-8">
+                        <label class="form-label">Token (masked)</label>
+                        <input type="text" class="form-control" value="@GetMaskedToken()" readonly />
+                    </div>
+                    <div class="col-md-4 d-flex align-items-end">
+                        <button class="btn btn-outline-primary me-2" @onclick="CopyTokenAsync" disabled="@IsLoading">
+                            Copy Token
+                        </button>
+                        <button class="btn btn-outline-danger me-2" @onclick="ClearTokenAsync" disabled="@IsLoading">
+                            Clear Token
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-warning" role="alert">
+            <h4 class="alert-heading">No Token Stored</h4>
+            <p>Please get a token using the OAuth app or copy from another platform with a valid token.</p>
+        </div>
+    }
+
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Add/Update Token</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-8">
+                    <label for="tokenInput" class="form-label">Paste Token Here</label>
+                    <textarea id="tokenInput" class="form-control" rows="3" @bind="TokenInput" placeholder="Paste your token from the OAuth app here..."></textarea>
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <button class="btn btn-primary" @onclick="SaveTokenAsync" disabled="@IsLoading">
+                        Save Token
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+}

@@ -1,0 +1,114 @@
+@page "/"
+@page "/monitor"
+@using MauiEnphaseMonitor.Shared.Models
+@using MauiEnphaseMonitor.Shared.Services
+@implements IDisposable
+
+<PageTitle>Enphase Monitor - Monitor</PageTitle>
+
+<div class="monitor-container">
+    @if (this.showTokenMessage)
+    {
+        <div class="token-message">
+            <div class="alert alert-warning">
+                <h5>Token Required</h5>
+                <p>Please get a token using the OAuth app or copy from another platform with a valid token.</p>
+                <p>Go to the <a href="/current-token">Current Token</a> page to paste your token.</p>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="energy-display">
+            <!-- Top Section - Current Values -->
+            <div class="current-values">
+                <div class="value-column">
+                    <div class="value-display">@this.currentMetrics?.Production.ToString("F0") W</div>
+                    <div class="value-label">Producing</div>
+                </div>
+                <div class="value-column">
+                    <div class="value-display">@this.currentMetrics?.Consumption.ToString("F0") W</div>
+                    <div class="value-label">Consuming</div>
+                </div>
+            </div>
+
+            <!-- Center Section - Net Reading -->
+            <div class="net-display">
+                <div class="net-value @GetNetValueClass()">
+                    @GetNetValueDisplay()
+                </div>
+            </div>
+
+            <!-- Status Information -->
+            <div class="status-info">
+                <div class="status-item">
+                    <span class="status-label">Last Update:</span>
+                    <span class="status-value">@this.currentMetrics?.LastUpdate.ToString("HH:mm:ss")</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">Live Data:</span>
+                    <span class="status-value @(this.currentMetrics?.IsLiveDataEnabled == true ? "enabled" : "disabled")">
+                        @(this.currentMetrics?.IsLiveDataEnabled == true ? "Enabled" : "Disabled")
+                    </span>
+                </div>
+                @if (this.currentMetrics?.PanelTotal > 0)
+                {
+                    <div class="status-item">
+                        <span class="status-label">Panel Total:</span>
+                        <span class="status-value">@this.currentMetrics.PanelTotal W</span>
+                    </div>
+                }
+                @if (this.currentMetrics?.Efficiency > 0)
+                {
+                    <div class="status-item">
+                        <span class="status-label">Efficiency:</span>
+                        <span class="status-value">@this.currentMetrics.Efficiency.ToString("F1")%</span>
+                    </div>
+                }
+            </div>
+
+            <!-- Bottom Section - Update Controls -->
+            <div class="update-controls">
+                <button class="btn btn-update @(this.isLoading ? "loading" : "")" 
+                        @onclick="RefreshNow" 
+                        disabled="@this.isLoading">
+                    @if (this.isLoading)
+                    {
+                        <span class="spinner"></span>
+                    }
+                    Now
+                </button>
+                <button class="btn btn-interval @(this.refreshInterval == 15 ? "active" : "")" 
+                        @onclick="() => SetRefreshInterval(15)">
+                    15
+                </button>
+                <button class="btn btn-interval @(this.refreshInterval == 30 ? "active" : "")" 
+                        @onclick="() => SetRefreshInterval(30)">
+                    30
+                </button>
+                <button class="btn btn-interval @(this.refreshInterval == 60 ? "active" : "")" 
+                        @onclick="() => SetRefreshInterval(60)">
+                    60
+                </button>
+            </div>
+
+            @if (!string.IsNullOrEmpty(this.errorMessage))
+            {
+                <div class="error-message">
+                    <div class="alert alert-danger">
+                        @this.errorMessage
+                    </div>
+                </div>
+            }
+
+            @if (!string.IsNullOrEmpty(this.errorMessage) && !string.IsNullOrEmpty(this.debugMessage))
+            {
+                <div class="debug-message">
+                    <div class="alert alert-info">
+                        <strong>Debug:</strong> @this.debugMessage
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

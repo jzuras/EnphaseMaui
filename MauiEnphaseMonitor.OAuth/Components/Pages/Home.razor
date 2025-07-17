@@ -1,0 +1,46 @@
+﻿@page "/"
+
+<PageTitle>Home</PageTitle>
+
+<h1>Enphase OAuth Token Manager</h1>
+
+<div class="alert alert-primary" role="alert">
+    <h4 class="alert-heading">Welcome to the OAuth Token Manager!</h4>
+    <p>This is a dedicated application for obtaining Enphase API tokens through OAuth authentication.</p>
+    <hr>
+    <p class="mb-0">Use this app to:</p>
+    <ul class="mt-2">
+        <li>Authenticate with Enphase cloud APIs</li>
+        <li>Obtain API access tokens</li>
+        <li>Copy tokens for use in other applications</li>
+    </ul>
+</div>
+
+<div class="card mt-4">
+    <div class="card-body">
+        <h5 class="card-title">How it works</h5>
+        <div class="card-text">
+            <ol>
+                <li><strong>Navigate to OAuth:</strong> Click the "OAuth" link in the menu</li>
+                <li><strong>Start OAuth Flow:</strong> Begin authentication with Enphase</li>
+                <li><strong>Authorize Access:</strong> Complete authorization on Enphase website</li>
+                <li><strong>Copy Token:</strong> Return here to copy your access token</li>
+                <li><strong>Use in Apps:</strong> Paste token into MAUI app or WASM app settings</li>
+            </ol>
+        </div>
+    </div>
+</div>
+
+<div class="card mt-4">
+    <div class="card-body">
+        <h5 class="card-title">Architecture</h5>
+        <p class="card-text">
+            This OAuth app runs server-side and loads configuration from appsettings.json.
+            The main MAUI and WASM applications can run standalone after receiving tokens from this service.
+        </p>
+    </div>
+</div>
+
+<div class="mt-4">
+    <a href="/oauth" class="btn btn-primary">Start OAuth Process</a>
+</div>

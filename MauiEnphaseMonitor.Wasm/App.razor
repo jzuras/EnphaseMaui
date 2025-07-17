@@ -1,0 +1,12 @@
+﻿<Router AppAssembly="@typeof(App).Assembly" AdditionalAssemblies="new[] { typeof(MauiEnphaseMonitor.Shared._Imports).Assembly }">
+    <Found Context="routeData">
+        <RouteView RouteData="@routeData" DefaultLayout="@typeof(MauiEnphaseMonitor.Shared.Layout.MainLayout)" />
+        <FocusOnNavigate RouteData="@routeData" Selector="h1" />
+    </Found>
+    <NotFound>
+        <PageTitle>Not found</PageTitle>
+        <LayoutView Layout="@typeof(MauiEnphaseMonitor.Shared.Layout.MainLayout)">
+            <p role="alert">Sorry, there's nothing at this address.</p>
+        </LayoutView>
+    </NotFound>
+</Router>

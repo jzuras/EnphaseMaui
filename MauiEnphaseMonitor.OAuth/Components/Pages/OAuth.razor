@@ -1,0 +1,77 @@
+@page "/oauth"
+
+@rendermode @(new Microsoft.AspNetCore.Components.Web.InteractiveServerRenderMode())
+
+<h1>Enphase Local API Token</h1>
+
+<div class="alert alert-info" role="alert">
+    <h4 class="alert-heading">Get Enphase Local API Token</h4>
+    <p>This page will get a local API token for accessing your IQ Gateway's local APIs.</p>
+    <hr>
+    <p class="mb-0">Steps:</p>
+    <ol class="mt-2">
+        <li>Enter your Enphase account email and password</li>
+        <li>Click "Get Local API Token" to authenticate</li>
+        <li>Copy the token to use in the MAUI app or WASM app for local API calls</li>
+    </ol>
+</div>
+
+<div class="card mt-4">
+    <div class="card-body">
+        <h5 class="card-title">Token Configuration</h5>
+        <p class="card-text">
+            <strong>Serial Number:</strong> @(string.IsNullOrEmpty(Settings.EnphaseSerialNumber) ? "Not configured" : "Configured")
+        </p>
+        
+        @if (string.IsNullOrEmpty(Settings.EnphaseSerialNumber))
+        {
+            <div class="alert alert-warning">
+                <strong>Configuration Missing:</strong> Enphase Serial Number is not configured. Please check your appsettings.json.
+            </div>
+        }
+        else
+        {
+            <div class="mb-3">
+                <label for="enphaseEmail" class="form-label">Enphase Email</label>
+                <input type="email" class="form-control" id="enphaseEmail" @bind="EnphaseEmail" placeholder="your@email.com" />
+            </div>
+            <div class="mb-3">
+                <label for="enphasePassword" class="form-label">Enphase Password</label>
+                <input type="password" class="form-control" id="enphasePassword" @bind="EnphasePassword" placeholder="Password" />
+            </div>
+            <button class="btn btn-primary" @onclick="GetTokenDirectly" disabled="@(string.IsNullOrEmpty(EnphaseEmail) || string.IsNullOrEmpty(EnphasePassword) || IsProcessing)">
+                @if (IsProcessing)
+                {
+                    <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                    <text>Getting Token...</text>
+                }
+                else
+                {
+                    <text>Get Local API Token</text>
+                }
+            </button>
+            
+            @if (!string.IsNullOrEmpty(ErrorMessage))
+            {
+                <div class="alert alert-danger mt-3">
+                    <strong>Error:</strong> @ErrorMessage
+                </div>
+            }
+            
+            @if (!string.IsNullOrEmpty(TokenResult))
+            {
+                <div class="alert alert-success mt-3">
+                    <strong>Local API Token Retrieved:</strong>
+                    <div class="mt-2 p-2 bg-light border rounded">
+                        <code style="word-break: break-all;">@TokenResult</code>
+                    </div>
+                    <button class="btn btn-primary mt-2" @onclick="() => CopyToClipboard(TokenResult)">Copy Token</button>
+                </div>
+            }
+        }
+    </div>
+</div>
+
+@code {
+    // see code behind
+}
