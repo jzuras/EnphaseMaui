@@ -18,6 +18,14 @@
     box-sizing: border-box;
 }
 
+.energy-display.grid-connected {
+    background: linear-gradient(135deg, #e6f3ff 0%, #b3d9ff 100%);
+}
+
+.energy-display.grid-disconnected {
+    background: linear-gradient(135deg, #ffe6e6 0%, #ffb3b3 100%);
+}
+
 .current-values {
     display: grid;
     grid-template-columns: 1fr 1fr;
