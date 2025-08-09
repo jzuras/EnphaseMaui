@@ -18,7 +18,8 @@ public record LiveData(
 public record MetersData(
     [property: JsonPropertyName("load")] LoadData? Load,
     [property: JsonPropertyName("pv")] PvData? Pv,
-    [property: JsonPropertyName("last_update")] long? LastUpdate
+    [property: JsonPropertyName("last_update")] long? LastUpdate,
+    [property: JsonPropertyName("main_relay_state")] long MainRelayState
 );
 
 public record LoadData([property: JsonPropertyName("agg_p_mw")] int AggPMw);
@@ -55,5 +56,6 @@ public record EnergyMetrics(
     int PanelTotal,
     double Efficiency,
     DateTime LastUpdate,
-    bool IsLiveDataEnabled
+    bool IsLiveDataEnabled,
+    bool GridStatus
 );

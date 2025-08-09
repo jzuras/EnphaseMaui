@@ -1,8 +1,7 @@
+using MauiEnphaseMonitor.Shared.Models;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
-using MauiEnphaseMonitor.Shared.Models;
-using MauiEnphaseMonitor.Shared.Services;
 
 namespace MauiEnphaseMonitor.Shared.Services;
 
@@ -98,6 +97,12 @@ public class EnvoyLocalApiService : IEnvoyLocalApiService, IDisposable
             var efficiency = maxTotal > 0 ? panelTotal * 100.0 / maxTotal : 0;
             var isLiveDataEnabled = liveData.Connection?.ScStream == "enabled";
 
+            //Grid Status Properties:
+            //-meters.main_relay_state - State of the main relay(0 = open / off - grid, other values = closed / on - grid)
+            //-meters.gen_relay_state - State of the generator relay
+            //-meters.grid.agg_p_mw - Grid power flow(0 = no grid connection, positive = importing from grid, negative = exporting to grid)
+            var gridStatus = liveData.Meters.MainRelayState == 0 ? false : true;
+
             this.LastErrorDetails += $" | SUCCESS P:{production:F1}W C:{consumption:F1}W";
 
             return new EnergyMetrics(
@@ -107,7 +112,8 @@ public class EnvoyLocalApiService : IEnvoyLocalApiService, IDisposable
                 panelTotal,
                 efficiency,
                 DateTime.UtcNow,
-                isLiveDataEnabled
+                isLiveDataEnabled,
+                gridStatus
             );
         }
         catch (Exception ex)
@@ -177,6 +183,12 @@ public class EnvoyLocalApiService : IEnvoyLocalApiService, IDisposable
             var efficiency = maxTotal > 0 ? panelTotal * 100.0 / maxTotal : 0;
             var isLiveDataEnabled = liveData.Connection?.ScStream == "enabled";
 
+            //Grid Status Properties:
+            //-meters.main_relay_state - State of the main relay(0 = open / off - grid, other values = closed / on - grid)
+            //-meters.gen_relay_state - State of the generator relay
+            //-meters.grid.agg_p_mw - Grid power flow(0 = no grid connection, positive = importing from grid, negative = exporting to grid)
+            var gridStatus = liveData.Meters.MainRelayState == 0 ? false : true;
+
             this.LastErrorDetails += $" | SUCCESS P:{production:F1}W C:{consumption:F1}W";
 
             return new EnergyMetrics(
@@ -186,7 +198,8 @@ public class EnvoyLocalApiService : IEnvoyLocalApiService, IDisposable
                 panelTotal,
                 efficiency,
                 DateTime.UtcNow,
-                isLiveDataEnabled
+                isLiveDataEnabled,
+                gridStatus
             );
         }
         catch (Exception ex)

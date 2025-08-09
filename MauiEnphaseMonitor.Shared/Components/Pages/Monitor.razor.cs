@@ -236,6 +236,16 @@ public partial class Monitor : ComponentBase, IDisposable
         return $"{sign}{this.currentMetrics.Net:F0} W";
     }
 
+    private string GetGridStatusClass()
+    {
+        if (this.currentMetrics is null)
+        {
+            return "";
+        }
+
+        return this.currentMetrics.GridStatus ? "grid-connected" : "grid-disconnected";
+    }
+
     public void Dispose()
     {
         if (!this.disposed)
