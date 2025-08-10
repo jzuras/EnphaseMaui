@@ -44,86 +44,12 @@ public class EnvoyLocalApiService : IEnvoyLocalApiService, IDisposable
 
     public async Task<EnergyMetrics?> GetCurrentEnergyMetricsAsync()
     {
+        // Set flag to prevent timer interference during manual calls
+        this._manualRefreshInProgress = true;
+        
         try
         {
-            // Set flag to prevent timer interference during manual calls
-            this._manualRefreshInProgress = true;
-            
-            this.LastErrorDetails = $"Service Instance: {this.GetHashCode()} | MANUAL CALL";
-            
-            var token = await this._tokenStorage.GetTokenAsync();
-            if (string.IsNullOrEmpty(token))
-            {
-                this.LastErrorDetails += " | No token available";
-                return null;
-            }
-
-            var tokenPreview = token.Length > 10 ? $"{token[..6]}...{token[^4..]}" : "short";
-            this.LastErrorDetails += $" | Token [{token.Length} chars] ({tokenPreview})";
-            
-            // Clear and set authorization header to ensure new token is used
-            var oldAuth = this._httpClient.DefaultRequestHeaders.Authorization?.Parameter;
-            var oldAuthPreview = string.IsNullOrEmpty(oldAuth) ? "NONE" : 
-                oldAuth.Length > 10 ? $"{oldAuth[..6]}...{oldAuth[^4..]}" : "short";
-            
-            this._httpClient.DefaultRequestHeaders.Authorization = null;
-            this._httpClient.DefaultRequestHeaders.Authorization = 
-                new AuthenticationHeaderValue("Bearer", token);
-                
-            this.LastErrorDetails += $" | Old Auth: ({oldAuthPreview}) | New Auth: ({tokenPreview})";
-
-            this.LastErrorDetails += " | Starting API calls";
-            var panelsTask = GetPanelDataAsync();
-            var liveDataTask = GetLiveDataAsync();
-
-            await Task.WhenAll(panelsTask, liveDataTask);
-
-            var panels = await panelsTask;
-            var liveData = await liveDataTask;
-
-            this.LastErrorDetails += $" | Panels: {panels?.Length ?? 0}, Live: {(liveData?.Meters is not null ? "OK" : "NULL")}";
-
-            if (liveData?.Meters is null)
-            {
-                this.LastErrorDetails += " | No live data meters";
-                return null;
-            }
-
-            var production = (liveData.Meters.Pv?.AggPMw ?? 0) / 1000.0; // Convert milliwatts to watts
-            var consumption = (liveData.Meters.Load?.AggPMw ?? 0) / 1000.0; // Convert milliwatts to watts
-            var net = production - consumption;
-            var panelTotal = panels?.Sum(p => p.LastReportWatts) ?? 0;
-            var maxTotal = panels?.Sum(p => p.MaxReportWatts) ?? 1;
-            var efficiency = maxTotal > 0 ? panelTotal * 100.0 / maxTotal : 0;
-            var isLiveDataEnabled = liveData.Connection?.ScStream == "enabled";
-
-            //Grid Status Properties:
-            //-meters.main_relay_state - State of the main relay(0 = open / off - grid, other values = closed / on - grid)
-            //-meters.gen_relay_state - State of the generator relay
-            //-meters.grid.agg_p_mw - Grid power flow(0 = no grid connection, positive = importing from grid, negative = exporting to grid)
-            var gridStatus = liveData.Meters.MainRelayState == 0 ? false : true;
-
-            this.LastErrorDetails += $" | SUCCESS P:{production:F1}W C:{consumption:F1}W";
-
-            return new EnergyMetrics(
-                production,
-                consumption,
-                net,
-                panelTotal,
-                efficiency,
-                DateTime.UtcNow,
-                isLiveDataEnabled,
-                gridStatus
-            );
-        }
-        catch (Exception ex)
-        {
-            this.LastErrorDetails = $"Exception: {ex.GetType().Name} - {ex.Message}";
-            if (ex.InnerException is not null)
-            {
-                this.LastErrorDetails += $" | Inner: {ex.InnerException.Message}";
-            }
-            return null;
+            return await GetCurrentEnergyMetricsInternalAsync(isTimerCall: false);
         }
         finally
         {
@@ -133,9 +59,15 @@ public class EnvoyLocalApiService : IEnvoyLocalApiService, IDisposable
 
     private async Task<EnergyMetrics?> GetCurrentEnergyMetricsForTimerAsync()
     {
+        return await GetCurrentEnergyMetricsInternalAsync(isTimerCall: true);
+    }
+
+    private async Task<EnergyMetrics?> GetCurrentEnergyMetricsInternalAsync(bool isTimerCall)
+    {
         try
         {
-            this.LastErrorDetails = $"Service Instance: {this.GetHashCode()} | TIMER CALL";
+            var callType = isTimerCall ? "TIMER CALL" : "MANUAL CALL";
+            this.LastErrorDetails = $"Service Instance: {this.GetHashCode()} | {callType}";
             
             var token = await this._tokenStorage.GetTokenAsync();
             if (string.IsNullOrEmpty(token))
@@ -204,7 +136,8 @@ public class EnvoyLocalApiService : IEnvoyLocalApiService, IDisposable
         }
         catch (Exception ex)
         {
-            this.LastErrorDetails = $"Timer Exception: {ex.GetType().Name} - {ex.Message}";
+            var exceptionPrefix = isTimerCall ? "Timer Exception" : "Exception";
+            this.LastErrorDetails = $"{exceptionPrefix}: {ex.GetType().Name} - {ex.Message}";
             if (ex.InnerException is not null)
             {
                 this.LastErrorDetails += $" | Inner: {ex.InnerException.Message}";
